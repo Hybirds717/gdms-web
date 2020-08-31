@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oracle.gdms.dao.GoodsDao">
+
+	<resultMap type="Goods" id="GoodsEntity">
+		<id 	column="goodsid" property="goodsid" />
+		<result column="rowflag" property="rowflag" />
+		<result column="name" property="name" />
+		<result column="spec" property="spec" />
+		<result column="amount" property="amount" />
+		<result column="price" property="price" />
+		<result column="makedate" property="makedate" />
+		<result column="push" property="push" />
+		<association property="type" javaType="GoodsType" 
+			select="com.oracle.gdms.dao.GoodsTypeDao.findById" column="gtid"></association>
+	</resultMap>
+	
+	
+	
+	
+	<select id="findByType" parameterType="int" resultType="com.oracle.gdms.entity.GoodsModel">
+		SELECT * FROM tbl_gdms_goods WHERE gtid = #{gtid}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	<select id="findByKeywords" parameterType="java.lang.String" resultType="Goods">
+		SELECT * FROM tbl_gdms_goods WHERE 
+				name LIKE "%"#{kw}"%" OR rowflag LIKE "%"#{kw}"%" OR spec LIKE "%"#{kw}"%" OR unit LIKE "%"#{kw}"%" 
+				OR area LIKE "%"#{kw}"%"  OR size LIKE "%"#{kw}"%"    OR color LIKE "%"#{kw}"%" OR expirydate LIKE "%"#{kw}"%"
+	</select>
+	
+	
+	
+	
+	<update id="updateStatus" parameterType="java.util.Map" >
+		UPDATE tbl_gdms_goods SET status=1 WHERE goodsid IN
+		<foreach collection="gid" item="x" open="(" close=")" separator=",">#{x}</foreach>
+	</update>
+	
+	
+	<!-- 
+	mybatis中动态SQL
+	update t set z=z where id in(1,2,5,4,20,14) -->
+	
+	
+	
+	
+	<select id="findByPage" parameterType="java.util.Map" resultMap="GoodsEntity">
+		SELECT * FROM tbl_gdms_goods 
+		
+		<where>
+			AND status = 0
+			<if test="kw != null and kw.length() > 0">
+				AND (name LIKE "%"#{kw}"%" OR rowflag LIKE "%"#{kw}"%" OR spec LIKE "%"#{kw}"%" OR unit LIKE "%"#{kw}"%" 
+				OR area LIKE "%"#{kw}"%"  OR size LIKE "%"#{kw}"%"    OR color LIKE "%"#{kw}"%" OR expirydate LIKE "%"#{kw}"%")
+			</if>
+		</where>
+		
+		LIMIT #{offset}, #{rows}
+	</select>
+	
+	<select id="findCount" resultType="int" parameterType="java.util.Map">
+		SELECT count(*) FROM tbl_gdms_goods 
+		<where>
+			AND status = 0
+			<if test="kw != null and kw.length() > 0">
+				AND (name LIKE "%"#{kw}"%" OR rowflag LIKE "%"#{kw}"%" OR spec LIKE "%"#{kw}"%" OR unit LIKE "%"#{kw}"%" 
+				OR area LIKE "%"#{kw}"%"  OR size LIKE "%"#{kw}"%"    OR color LIKE "%"#{kw}"%" OR expirydate LIKE "%"#{kw}"%")
+			</if>
+		</where>
+	</select>
+	
+	<select id="findById" resultType="Goods" parameterType="int">
+		SELECT * FROM tbl_gdms_goods  WHERE  goodsid = #{goodsid}
+	</select>
+	
+	<insert id="add" parameterType="com.oracle.gdms.entity.GoodsEntity" >
+		INSERT INTO tbl_gdms_goods(rowflag, name, spec, gtid, unit, 
+								   amount, price, agio, area, color,
+								   size, weight, photo, makedate, expirydate,
+								   status, push )
+		VALUES(#{rowflag},#{name},#{spec},#{gtid},#{unit},
+			   #{amount},#{price},#{agio},#{area},#{color},
+			   #{size},#{weight},#{photo},#{scrq},#{expirydate},
+			   #{status},0
+		)
+	</insert>
+	
+	<update id="updatePush" parameterType="int">
+		UPDATE tbl_gdms_goods SET push = 1 WHERE goodsid=#{goodsid}
+	</update>
+	
+	<update id="update" parameterType="com.oracle.gdms.entity.GoodsEntity">
+		UPDATE tbl_gdms_goods
+			SET name=#{name}, spec=#{spec}, price=#{price}, amount=#{amount}
+			WHERE goodsid = #{goodsid}
+	</update>
+	
+	
+	
+	
+</mapper>

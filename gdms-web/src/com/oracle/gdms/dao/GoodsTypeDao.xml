@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oracle.gdms.dao.GoodsTypeDao">
+	<insert id="add" parameterType="GoodsType">
+		INSERT INTO tbl_gdms_goodstype( name, description ) VALUES ( #{name}, #{description} )
+	</insert>
+	
+	<select id="findById" parameterType="int" resultType="GoodsType">
+		SELECT * FROM tbl_gdms_goodstype WHERE gtid = #{gtid}
+	</select>
+</mapper>
